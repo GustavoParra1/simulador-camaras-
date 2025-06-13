@@ -20,7 +20,8 @@ def geolocalizar_direccion(direccion):
 def filtrar_camaras(df, lat, lon, radio_metros=700):
     from geopy.distance import geodesic
     def en_rango(fila):
-        return geodesic((lat, lon), (fila["latitud"], fila["longitud"])).meters <= radio_metros
+       return geodesic((lat, lon), (fila["lat"], fila["long"])).meters <= 700
+
     return df[df.apply(en_rango, axis=1)]
 
 # Interfaz Streamlit
