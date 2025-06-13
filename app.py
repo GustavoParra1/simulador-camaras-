@@ -48,20 +48,20 @@ if direccion:
 
             # Añadir cámaras al mapa con números
             for _, row in camaras_en_rango.iterrows():
-                lat_cam = row["lat"]
-                lon_cam = row["long"]
-                numero = row.get("nro_camara", "N/A")
+    lat_cam = row["lat"]
+    lon_cam = row["long"]
+    numero = row.get("nro_camara", "N/A")  # Reemplazar con el nombre real
 
+    folium.Marker(
+        location=[lat_cam, lon_cam],
+        icon=folium.DivIcon(html=f"""
+            <div style="font-size: 12px; color: blue; font-weight: bold;">
+                {numero}
+            </div>
+        """),
+        tooltip=f"Cámara #{numero}"
+    ).add_to(cluster)
 
-                folium.Marker(
-                    location=[lat_cam, lon_cam],
-                    icon=folium.DivIcon(html=f"""
-                        <div style="font-size: 12px; color: blue; font-weight: bold;">
-                            {numero}
-                        </div>
-                    """),
-                    tooltip=f"Cámara #{numero}"
-                ).add_to(cluster)
 
             # Mostrar el mapa
             st_folium(mapa, width=700, height=500)
