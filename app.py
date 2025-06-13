@@ -7,8 +7,8 @@ from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 
 # Configuración de la página
-st.set_page_config(page_title="Simulador Cámaras de Seguridad", layout="centered")
-st.title("Simulador Cámaras de Seguridad(MDP)")
+st.set_page_config(page_title="Simulador Cámaras de Seg.", layout="centered")
+st.title("Simulador Cámaras de Seg.(MDP)")
 st.caption("Ingrese una dirección en Mar del Plata")
 
 # Cargar base de datos
