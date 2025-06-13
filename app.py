@@ -32,13 +32,13 @@ if direccion:
             lon = ubicacion.longitude
             st.success(f"Coordenadas encontradas: lat={lat}, lon={lon}")
 
-            # Calcular cámaras en radio de 700 metros
+            # Calcular cámaras en radio de 300 metros
             def en_rango(fila):
-                return geodesic((lat, lon), (fila["lat"], fila["long"])).meters <= 700
+                return geodesic((lat, lon), (fila["lat"], fila["long"])).meters <= 300
 
             camaras_en_rango = df_camaras[df_camaras.apply(en_rango, axis=1)]
 
-            st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 700 metros.")
+            st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 300 metros.")
 
             # Crear mapa
             mapa = folium.Map(location=[lat, lon], zoom_start=15)
