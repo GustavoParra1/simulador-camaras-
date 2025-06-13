@@ -38,7 +38,7 @@ if direccion:
             for _, row in df_ok.iterrows():
                 folium.Marker(
                   [row["lat"], row["long"]],
-                  icon=folium.DivIcon(html=f"<div style='font-size:12px;color:blue;font-weight:bold'>{row.get('nro_camara', 'N/A')}</div>"),
+                  icon=folium.DivIcon(html=f"<div style='font-size:21px;color:blue;font-weight:bold'>{row.get('nro_camara', 'N/A')}</div>"),
                   tooltip=f"Cámara #{row.get('nro_camara', 'N/A')}"
                 ).add_to(cluster)
 
