@@ -10,7 +10,6 @@ from geopy.distance import geodesic
 st.set_page_config(page_title="Simulador de Cámaras de Seguridad", layout="centered")
 st.title("Simulador de Cámaras de Seguridad (MDP)")
 st.caption("Ingrese una dirección en Mar del Plata")
-st.write("Columnas en CSV:", df_camaras.columns.tolist())
 
 
 # Cargar base de datos
