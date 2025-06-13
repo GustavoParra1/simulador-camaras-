@@ -40,6 +40,17 @@ if direccion:
         
         mapa = folium.Map(location=[lat, lon], zoom_start=15)
         folium.Marker([lat, lon], tooltip="Ubicación ingresada", icon=folium.Icon(color="red")).add_to(mapa)
+        for _, row in camaras_en_rango.iterrows():
+    try:
+        lat = float(str(row["lat"]).replace(",", "."))
+        lon = float(str(row["long"]).replace(",", "."))
+        folium.Marker(
+            [lat, lon],
+            tooltip=f"Cámara #{row.get('camara', 'N/A')}"
+        ).add_to(m)
+    except Exception as e:
+        st.warning(f"No se pudo agregar una cámara al mapa: {e}")
+
 
         cluster = MarkerCluster().add_to(mapa)
         for _, row in camaras_en_rango.iterrows():
