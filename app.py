@@ -55,7 +55,7 @@ if direccion:
                 folium.Marker(
                     location=[lat_cam, lon_cam],
                     icon=folium.DivIcon(html=f"""
-                        <div style="font-size: 21px; color: blue; font-weight: bold;">
+                        <div style="font-size: 24px; color: blue; font-weight: bold;">
                             {numero}
                         </div>
                     """),
