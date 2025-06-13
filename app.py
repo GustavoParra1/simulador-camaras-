@@ -65,7 +65,7 @@ if direccion:
                 ).add_to(cluster)
 
             # Mostrar el mapa
-            st_folium(mapa, width=700, height=500)
+            st_folium(mapa, width=1200, height=600)
             st.write("Columnas en CSV:", df_camaras.columns.tolist())
 
 
