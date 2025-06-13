@@ -3,5 +3,3 @@ pandas
 folium
 geopy
 streamlit-folium
-openpyxl
-
