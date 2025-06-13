@@ -66,6 +66,8 @@ if direccion:
 
             # Mostrar el mapa
             st_folium(mapa, width=700, height=500)
+            st.write("Columnas en CSV:", df_camaras.columns.tolist())
+
 
         else:
             st.error("No se pudo geolocalizar la dirección.")
