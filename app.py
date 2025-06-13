@@ -66,10 +66,19 @@ if direccion:
             try:
                 lat_cam = float(str(row["lat"]).replace(",", "."))
                 lon_cam = float(str(row["long"]).replace(",", "."))
-                folium.Marker(
-                    [lat_cam, lon_cam],
-                    tooltip=f"Cámara #{row.get('camara', 'N/A')}"
-                ).add_to(cluster)
+                # Agregar marcador con número visible en el mapa
+folium.Marker(
+    location=[lat_cam, lon_cam],
+    icon=folium.DivIcon(
+        html=f"""
+            <div style="font-size: 12px; color: blue; font-weight: bold;">
+                {int(row.get('camara', 0))}
+            </div>
+        """
+    ),
+    tooltip=f"Cámara #{row.get('camara', 'N/A')}"
+).add_to(cluster)
+
             except Exception as e:
                 st.warning(f"No se pudo agregar una cámara: {e}")
 
