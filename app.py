@@ -40,7 +40,7 @@ if direccion:
         
         mapa = folium.Map(location=[lat, lon], zoom_start=15)
         folium.Marker
-        for _, row in camaras_en_rango.iterrows():
+    for _, row in camaras_en_rango.iterrows():
     try:
         lat = float(str(row["lat"]).replace(",", "."))
         lon = float(str(row["long"]).replace(",", "."))
