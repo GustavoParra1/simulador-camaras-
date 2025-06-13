@@ -40,7 +40,7 @@ if direccion:
             st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 300 metros.")
 
             # Crear mapa
-            mapa = folium.Map(location=[lat, lon], zoom_start=50)
+            mapa = folium.Map(location=[lat, lon], zoom_start=10)
             folium.Marker([lat, lon], tooltip="Dirección ingresada", icon=folium.Icon(color="red")).add_to(mapa)
 
             # Agrupar cámaras
