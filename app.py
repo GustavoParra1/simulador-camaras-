@@ -39,7 +39,7 @@ if direccion:
         st.write(f"Se encontraron **{len(camaras_en_rango)}** cámaras en un radio de 700 metros.")
         
         mapa = folium.Map(location=[lat, lon], zoom_start=15)
-        folium.Marker([lat, lon], tooltip="Ubicación ingresada", icon=folium.Icon(color="red")).add_to(mapa)
+        folium.Marker
         for _, row in camaras_en_rango.iterrows():
     try:
         lat = float(str(row["lat"]).replace(",", "."))
