@@ -31,6 +31,8 @@ direccion = st.text_input("Ingrese una dirección en Mar del Plata", "")
 
 if direccion:
     lat, lon = geolocalizar(direccion)
+    st.write(f"Coordenadas encontradas: lat={lat}, lon={lon}")
+
     if lat and lon:
         camaras_en_rango = filtrar_camaras(df_camaras, lat, lon)
 
