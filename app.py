@@ -2,60 +2,75 @@ import streamlit as st
 import pandas as pd
 import folium
 from folium.plugins import MarkerCluster
+from streamlit_folium import st_folium
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
-from streamlit_folium import st_folium
 
-# Cargar la base de datos
-df_camaras = pd.read_csv("camaras_db.csv")
+# Título
+st.title("Simulador de Cámaras de Seguridad (MDP)")
+st.write("Ingrese una dirección en Mar del Plata")
 
-# Configurar geolocalizador
-geolocator = Nominatim(user_agent="simulador-camaras-mdp")
+# Carga de datos
+@st.cache_data
+def cargar_datos():
+    df = pd.read_csv("camaras_db.csv")
+    df.columns = df.columns.str.strip().str.lower()
+    return df
 
-# Función para obtener coordenadas de una dirección
-def geolocalizar(direccion):
+df_camaras = cargar_datos()
+
+# Entrada de dirección
+direccion = st.text_input("Ingrese una dirección en Mar del Plata")
+
+# Función para geolocalizar
+def geolocalizar_direccion(direccion):
+    geolocator = Nominatim(user_agent="simulador-mdp")
     location = geolocator.geocode(direccion + ", Mar del Plata, Argentina")
     if location:
         return location.latitude, location.longitude
-    return None, None
+    else:
+        return None, None
 
-# Función para filtrar cámaras en un radio de 700 metros
-def filtrar_camaras(df, lat, lon):
-    return df[df.apply(lambda fila: geodesic((lat, lon), (
-        float(str(fila["lat"]).replace(",", ".")),
-        float(str(fila["long"]).replace(",", "."))
-    )).meters <= 700, axis=1)]
+# Filtrar cámaras por distancia
+def filtrar_camaras(df, lat, lon, radio=700):
+    def en_rango(row):
+        try:
+            lat2 = float(str(row["lat"]).replace(",", "."))
+            lon2 = float(str(row["long"]).replace(",", "."))
+            return geodesic((lat, lon), (lat2, lon2)).meters <= radio
+        except:
+            return False
 
-st.title("Simulador de Cámaras de Seguridad (MDP)")
-direccion = st.text_input("Ingrese una dirección en Mar del Plata", "")
+    return df[df.apply(en_rango, axis=1)]
 
+# Si hay dirección ingresada
 if direccion:
-    lat, lon = geolocalizar(direccion)
-    st.write(f"Coordenadas encontradas: lat={lat}, lon={lon}")
+    lat, lon = geolocalizar_direccion(direccion)
 
-    if lat and lon:
+    if lat is None or lon is None:
+        st.error("No se pudo geolocalizar la dirección.")
+    else:
+        st.success(f"Coordenadas encontradas: lat={lat}, lon={lon}")
+
         camaras_en_rango = filtrar_camaras(df_camaras, lat, lon)
 
-        st.write(f"Se encontraron **{len(camaras_en_rango)}** cámaras en un radio de 700 metros.")
-        
-        mapa = folium.Map(location=[lat, lon], zoom_start=15)
-        folium.Marker
-    for _, row in camaras_en_rango.iterrows():
-    try:
-        lat = float(str(row["lat"]).replace(",", "."))
-        lon = float(str(row["long"]).replace(",", "."))
-        folium.Marker(
-            [lat, lon],
-            tooltip=f"Cámara #{row.get('camara', 'N/A')}"
-        ).add_to(m)
-    except Exception as e:
-        st.warning(f"No se pudo agregar una cámara al mapa: {e}")
+        st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 700 metros.")
 
+        # Crear mapa
+        m = folium.Map(location=[lat, lon], zoom_start=15)
+        folium.Marker([lat, lon], tooltip="Ubicación ingresada", icon=folium.Icon(color='red')).add_to(m)
 
-        cluster = MarkerCluster().add_to(mapa)
+        cluster = MarkerCluster().add_to(m)
+
         for _, row in camaras_en_rango.iterrows():
-            folium.Marker([row["lat"], row["long"]], tooltip=f"Cámara #{row.get('camara', row.name)}").add_to(cluster)
+            try:
+                lat_cam = float(str(row["lat"]).replace(",", "."))
+                lon_cam = float(str(row["long"]).replace(",", "."))
+                folium.Marker(
+                    [lat_cam, lon_cam],
+                    tooltip=f"Cámara #{row.get('camara', 'N/A')}"
+                ).add_to(cluster)
+            except Exception as e:
+                st.warning(f"No se pudo agregar una cámara: {e}")
 
-        st_folium(mapa, width=700, height=500)
-    else:
-        st.error("No se pudo geolocalizar la dirección.")
+        st_folium(m, width=700, height=500)
