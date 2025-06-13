@@ -47,4 +47,3 @@ if direccion:
             st.error("No se pudo geolocalizar la dirección.")
     except Exception as e:
         st.error(f"Error al geolocalizar: {e}")
-
