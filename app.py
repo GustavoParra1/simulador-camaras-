@@ -47,11 +47,11 @@ if direccion:
             cluster = MarkerCluster().add_to(mapa)
 
             # Añadir cámaras al mapa con números
+
             for _, row in camaras_en_rango.iterrows():
                 lat_cam = row["lat"]
                 lon_cam = row["long"]
-                numero = row.get("nro_camara", "N/A")
-
+                numero = row.get("nro_camara", "N/A")  # Reemplazar con el nombre real
 
                 folium.Marker(
                     location=[lat_cam, lon_cam],
