@@ -21,9 +21,11 @@ def geolocalizar(direccion):
 
 # Función para filtrar cámaras en un radio de 700 metros
 def filtrar_camaras(df, lat, lon):
-    return df[df.apply(lambda fila: geodesic((lat, lon), (fila["lat"], fila["long"])).meters <= 700, axis=1)]
+    return df[df.apply(lambda fila: geodesic((lat, lon), (
+        float(str(fila["lat"]).replace(",", ".")),
+        float(str(fila["long"]).replace(",", "."))
+    )).meters <= 700, axis=1)]
 
-# Interfaz Streamlit
 st.title("Simulador de Cámaras de Seguridad (MDP)")
 direccion = st.text_input("Ingrese una dirección en Mar del Plata", "")
 
