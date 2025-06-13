@@ -50,7 +50,8 @@ if direccion:
             for _, row in camaras_en_rango.iterrows():
                 lat_cam = row["lat"]
                 lon_cam = row["long"]
-                numero = row.get("camara", "N/A")
+                numero = row.get("nro_camara", "N/A")
+
 
                 folium.Marker(
                     location=[lat_cam, lon_cam],
