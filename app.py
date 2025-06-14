@@ -6,88 +6,68 @@ from streamlit_folium import st_folium
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 
-# Configuración de la página
-st.markdown("""
-    <style>
-        .block-container {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-            padding-left: 1rem;
-            padding-right: 1rem;
-            max-width: 100% !important;
-        }
-    </style>
-""", unsafe_allow_html=True)
+# Configuración de página ancha
+st.set_page_config(page_title="Simulador Cámaras de Seg.", layout="wide")
 
-st.title("Simulador Cámaras de Seg.(MDP)")
-st.caption("Ingrese una dirección en Mar del Plata")
+# Título con logo a la derecha
+col1, col2 = st.columns([6, 1])
+with col1:
+    st.markdown("<h1 style='margin-bottom: 0;'>Simulador Cámaras de Seg. (MDP)</h1>", unsafe_allow_html=True)
+    st.caption("Ingrese una dirección en Mar del Plata")
+with col2:
+    st.image("logo calado.png", width=100)
 
-# Inicializar session_state
-if "direccion" not in st.session_state:
-    st.session_state.direccion = ""
-if "mostrar_mapa" not in st.session_state:
-    st.session_state.mostrar_mapa = False
-if "coordenadas" not in st.session_state:
-    st.session_state.coordenadas = None
-if "resultado" not in st.session_state:
-    st.session_state.resultado = None
-
-# Entrada de dirección
-st.session_state.direccion = st.text_input("Dirección:", value=st.session_state.direccion)
+# Entrada
+st.markdown("**Dirección:**")
+direccion = st.text_input("", placeholder="Ej. Salta 3200")
 
 # Botón buscar
 buscar = st.button("🔍 Buscar")
 
-# Acción al presionar "Buscar"
-if buscar and st.session_state.direccion:
-    df_camaras = pd.read_csv("camaras_db.csv", dtype=str)
-    df_camaras["lat"] = df_camaras["lat"].str.replace(",", ".").astype(float)
-    df_camaras["long"] = df_camaras["long"].str.replace(",", ".").astype(float)
+# Cargar base de datos
+df_camaras = pd.read_csv("camaras_db.csv", dtype=str)
+df_camaras["lat"] = df_camaras["lat"].str.replace(",", ".").astype(float)
+df_camaras["long"] = df_camaras["long"].str.replace(",", ".").astype(float)
 
-    geolocator = Nominatim(user_agent="simulador-mdp")
+# Geolocalizador
+geolocator = Nominatim(user_agent="simulador-mdp")
+
+# Lógica de búsqueda
+if buscar and direccion:
     try:
-        ubicacion = geolocator.geocode(f"{st.session_state.direccion}, Mar del Plata, Argentina")
+        ubicacion = geolocator.geocode(f"{direccion}, Mar del Plata, Argentina")
         if ubicacion:
             lat = ubicacion.latitude
             lon = ubicacion.longitude
-            st.session_state.coordenadas = (lat, lon)
-            st.success(f"Coordenadas encontradas: lat={lat}, lon={lon}")
+            st.success(f"Coordenadas encontradas: lat={lat:.6f}, lon={lon:.6f}")
 
+            # Calcular cámaras en radio de 300 metros
             def en_rango(fila):
-                return geodesic((lat, lon), (fila["lat"], fila["long"])).meters <= 400
+                return geodesic((lat, lon), (fila["lat"], fila["long"])).meters <= 300
 
             camaras_en_rango = df_camaras[df_camaras.apply(en_rango, axis=1)]
-            st.session_state.resultado = camaras_en_rango
-            st.session_state.mostrar_mapa = True
+
+            st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 300 metros.")
+
+            # Crear mapa
+            mapa = folium.Map(location=[lat, lon], zoom_start=15)
+            folium.Marker([lat, lon], tooltip="Dirección ingresada", icon=folium.Icon(color="red")).add_to(mapa)
+
+            cluster = MarkerCluster().add_to(mapa)
+            for _, row in camaras_en_rango.iterrows():
+                folium.Marker(
+                    location=[row["lat"], row["long"]],
+                    icon=folium.DivIcon(html=f"""
+                        <div style="font-size: 24px; color: blue; font-weight: bold;">
+                            {row.get("nro_camara", "N/A")}
+                        </div>
+                    """),
+                    tooltip=f"Cámara #{row.get('nro_camara', 'N/A')}"
+                ).add_to(cluster)
+
+            # Mostrar mapa en 16:9 y full width
+            st_folium(mapa, width=1200, height=675)
         else:
             st.error("No se pudo geolocalizar la dirección.")
-            st.session_state.mostrar_mapa = False
     except Exception as e:
         st.error(f"Ocurrió un error: {e}")
-        st.session_state.mostrar_mapa = False
-
-# Mostrar el mapa si corresponde
-if st.session_state.mostrar_mapa and st.session_state.coordenadas:
-    lat, lon = st.session_state.coordenadas
-    camaras_en_rango = st.session_state.resultado
-
-    st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 400 metros.")
-
-    mapa = folium.Map(location=[lat, lon], zoom_start=15)
-    folium.Marker([lat, lon], tooltip="Dirección ingresada", icon=folium.Icon(color="red")).add_to(mapa)
-    cluster = MarkerCluster().add_to(mapa)
-
-    for _, row in camaras_en_rango.iterrows():
-        folium.Marker(
-            location=[row["lat"], row["long"]],
-            icon=folium.DivIcon(html=f"""
-                <div style="font-size: 24px; color: blue; font-weight: bold;">
-                    {row.get("nro_camara", "N/A")}
-                </div>
-            """),
-            tooltip=f"Cámara #{row.get('nro_camara', 'N/A')}"
-        ).add_to(cluster)
-
-    st_folium(mapa, height=540, use_container_width=True)
-
-
