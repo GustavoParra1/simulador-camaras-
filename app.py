@@ -77,4 +77,12 @@ if st.session_state.mostrar_mapa and st.session_state.coordenadas:
             tooltip=f"Cámara #{row.get('nro_camara', 'N/A')}"
         ).add_to(cluster)
 
+    col1, col2 = st.columns([2, 1])  # 2 partes mapa, 1 parte info
+
+with col1:
     st_folium(mapa, width=960, height=540)
+
+with col2:
+    st.success(f"Coordenadas encontradas:\n lat={lat:.5f}, lon={lon:.5f}")
+    st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 300 metros.")
+
