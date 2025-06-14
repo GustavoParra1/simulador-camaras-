@@ -54,7 +54,7 @@ if buscar and st.session_state.direccion:
             st.success(f"Coordenadas encontradas: lat={lat}, lon={lon}")
 
             def en_rango(fila):
-                return geodesic((lat, lon), (fila["lat"], fila["long"])).meters <= 300
+                return geodesic((lat, lon), (fila["lat"], fila["long"])).meters <= 400
 
             camaras_en_rango = df_camaras[df_camaras.apply(en_rango, axis=1)]
             st.session_state.resultado = camaras_en_rango
@@ -71,7 +71,7 @@ if st.session_state.mostrar_mapa and st.session_state.coordenadas:
     lat, lon = st.session_state.coordenadas
     camaras_en_rango = st.session_state.resultado
 
-    st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 300 metros.")
+    st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 400 metros.")
 
     mapa = folium.Map(location=[lat, lon], zoom_start=15)
     folium.Marker([lat, lon], tooltip="Dirección ingresada", icon=folium.Icon(color="red")).add_to(mapa)
