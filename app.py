@@ -11,7 +11,7 @@ st.set_page_config(page_title="Simulador Cámaras de Seg.", layout="centered")
 st.title("Simulador Cámaras de Seg.(MDP)")
 st.caption("Ingrese una dirección en Mar del Plata")
 
-# Inicializar valores en session_state
+# Inicializar session_state
 if "direccion" not in st.session_state:
     st.session_state.direccion = ""
 if "mostrar_mapa" not in st.session_state:
@@ -21,21 +21,11 @@ if "coordenadas" not in st.session_state:
 if "resultado" not in st.session_state:
     st.session_state.resultado = None
 
-# Entrada de texto
+# Entrada de dirección
 st.session_state.direccion = st.text_input("Dirección:", value=st.session_state.direccion)
 
-# Botones
-col1, col2 = st.columns([1, 1])
-buscar = col1.button("🔍 Buscar")
-limpiar = col2.button("🧹 Limpiar dirección")
-
-# Acción al presionar "Limpiar"
-if limpiar:
-    st.session_state.direccion = ""
-    st.session_state.mostrar_mapa = False
-    st.session_state.coordenadas = None
-    st.session_state.resultado = None
-    st.stop()  # corta ejecución aquí
+# Botón buscar
+buscar = st.button("🔍 Buscar")
 
 # Acción al presionar "Buscar"
 if buscar and st.session_state.direccion:
@@ -65,12 +55,13 @@ if buscar and st.session_state.direccion:
         st.error(f"Ocurrió un error: {e}")
         st.session_state.mostrar_mapa = False
 
-# Mostrar mapa si corresponde
+# Mostrar el mapa si corresponde
 if st.session_state.mostrar_mapa and st.session_state.coordenadas:
     lat, lon = st.session_state.coordenadas
     camaras_en_rango = st.session_state.resultado
 
     st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 300 metros.")
+
     mapa = folium.Map(location=[lat, lon], zoom_start=15)
     folium.Marker([lat, lon], tooltip="Dirección ingresada", icon=folium.Icon(color="red")).add_to(mapa)
     cluster = MarkerCluster().add_to(mapa)
