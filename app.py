@@ -8,7 +8,7 @@ from geopy.distance import geodesic
 
 # Configuración de la página
 st.set_page_config(page_title="Simulador Cámaras de Seg.", layout="centered")
-st.title("Simulador Cámaras de Seg.(MDP)")
+st.title("Simulador Cámaras de Seg. (MDP)")
 st.caption("Ingrese una dirección en Mar del Plata")
 
 # Cargar base de datos
@@ -19,13 +19,27 @@ df_camaras["long"] = df_camaras["long"].str.replace(",", ".").astype(float)
 # Geolocalizador
 geolocator = Nominatim(user_agent="simulador-mdp")
 
-# Entrada del usuario
-direccion = st.text_input("")
+# Inicializar estado de sesión
+if "direccion" not in st.session_state:
+    st.session_state.direccion = ""
+
+# Input con botones
+col1, col2 = st.columns([4, 1])
+with col1:
+    direccion_input = st.text_input("Dirección:", value=st.session_state.direccion)
+with col2:
+    if st.button("Buscar"):
+        st.session_state.direccion = direccion_input
+
+# Botón para limpiar dirección
+if st.button("Limpiar dirección"):
+    st.session_state.direccion = ""
+    st.experimental_rerun()
 
 # Procesar si hay dirección
-if direccion:
+if st.session_state.direccion:
     try:
-        ubicacion = geolocator.geocode(f"{direccion}, Mar del Plata, Argentina")
+        ubicacion = geolocator.geocode(f"{st.session_state.direccion}, Mar del Plata, Argentina")
         if ubicacion:
             lat = ubicacion.latitude
             lon = ubicacion.longitude
@@ -50,7 +64,7 @@ if direccion:
             for _, row in camaras_en_rango.iterrows():
                 lat_cam = row["lat"]
                 lon_cam = row["long"]
-                numero = row.get("nro_camara", "N/A")  # Reemplazar con el nombre real
+                numero = row.get("nro_camara", "N/A")
 
                 folium.Marker(
                     location=[lat_cam, lon_cam],
@@ -69,3 +83,4 @@ if direccion:
             st.error("No se pudo geolocalizar la dirección.")
     except Exception as e:
         st.error(f"Ocurrió un error: {e}")
+
