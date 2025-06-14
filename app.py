@@ -77,5 +77,5 @@ if st.session_state.mostrar_mapa and st.session_state.coordenadas:
             tooltip=f"Cámara #{row.get('nro_camara', 'N/A')}"
         ).add_to(cluster)
 
-st_folium(mapa, width=960, height=540)
+st_folium(mapa, width=700, height=900)
 
