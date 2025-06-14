@@ -80,5 +80,5 @@ if st.session_state.mostrar_mapa and st.session_state.coordenadas:
 File "/mount/src/simulador-camaras-/app.py", line 80
      st_folium(mapa, width=960, height=540)
                                            ^
-IndentationError: unindent does not match any outer indentation level
+
 
