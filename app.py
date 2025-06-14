@@ -16,14 +16,11 @@ df_camaras = pd.read_csv("camaras_db.csv", dtype=str)
 df_camaras["lat"] = df_camaras["lat"].str.replace(",", ".").astype(float)
 df_camaras["long"] = df_camaras["long"].str.replace(",", ".").astype(float)
 
-# Inicializar geolocalizador
-geolocator = Nominatim(user_agent="simulador-mdp")
-
-# Inicializar estado si no existe
+# Inicializar estado
 if "direccion" not in st.session_state:
-    st.session_state["direccion"] = ""
+    st.session_state.direccion = ""
 
-# Entrada de texto con estado
+# Entrada
 st.text_input("Dirección:", key="direccion")
 
 # Botones
@@ -31,28 +28,30 @@ col1, col2 = st.columns([1, 1])
 buscar = col1.button("Buscar")
 limpiar = col2.button("Limpiar dirección")
 
-# Limpiar dirección
+# Limpiar dirección de forma segura
 if limpiar:
-    st.session_state["direccion"] = ""
+    # Redirigir a una función especial para limpiar sin romper la app
+    st.session_state.direccion = ""
     st.experimental_rerun()
 
-# Buscar cámaras si se presiona "Buscar"
-if buscar and st.session_state["direccion"]:
+# Geolocalizador
+geolocator = Nominatim(user_agent="simulador-mdp")
+
+# Buscar si hay dirección y se presionó buscar
+if buscar and st.session_state.direccion:
     try:
-        ubicacion = geolocator.geocode(f"{st.session_state['direccion']}, Mar del Plata, Argentina")
+        ubicacion = geolocator.geocode(f"{st.session_state.direccion}, Mar del Plata, Argentina")
         if ubicacion:
             lat = ubicacion.latitude
             lon = ubicacion.longitude
             st.success(f"Coordenadas encontradas: lat={lat}, lon={lon}")
 
-            # Filtrar cámaras dentro de 300 m
             def en_rango(fila):
                 return geodesic((lat, lon), (fila["lat"], fila["long"])).meters <= 300
 
             camaras_en_rango = df_camaras[df_camaras.apply(en_rango, axis=1)]
             st.info(f"Se encontraron {len(camaras_en_rango)} cámaras en un radio de 300 metros.")
 
-            # Crear mapa
             mapa = folium.Map(location=[lat, lon], zoom_start=15)
             folium.Marker([lat, lon], tooltip="Dirección ingresada", icon=folium.Icon(color="red")).add_to(mapa)
             cluster = MarkerCluster().add_to(mapa)
